@@ -33,8 +33,13 @@ async function writeStore(store) {
 }
 
 function normalizeInteraction(interaction) {
+  const likedBy = Array.isArray(interaction?.likedBy)
+    ? interaction.likedBy.map((entry) => String(entry))
+    : [];
+
   return {
-    likes: Number(interaction?.likes || 0),
+    likedBy,
+    likes: likedBy.length,
     comments: Array.isArray(interaction?.comments) ? interaction.comments : [],
   };
 }
@@ -50,38 +55,55 @@ async function getInteractionMap() {
   );
 }
 
-async function addLike(imagePath) {
+async function toggleLike(imagePath, userId) {
   const store = await readStore();
   const current = normalizeInteraction(store[imagePath]);
 
-  current.likes += 1;
+  const alreadyLiked = current.likedBy.includes(userId);
+
+  if (alreadyLiked) {
+    current.likedBy = current.likedBy.filter((entry) => entry !== userId);
+  } else {
+    current.likedBy.push(userId);
+  }
+
+  current.likes = current.likedBy.length;
   store[imagePath] = current;
 
   await writeStore(store);
 
-  return current;
+  return {
+    ...current,
+    likedByUser: !alreadyLiked,
+  };
 }
 
-async function addComment(imagePath, author, text) {
+async function addComment(imagePath, user, text) {
   const store = await readStore();
   const current = normalizeInteraction(store[imagePath]);
 
   current.comments.unshift({
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    author: author || 'Anonimo',
+    author: user.displayName || user.username || 'Anonimo',
+    authorId: user.id,
     text,
     createdAt: new Date().toISOString(),
   });
+
+  current.likes = current.likedBy.length;
 
   store[imagePath] = current;
 
   await writeStore(store);
 
-  return current;
+  return {
+    ...current,
+    likedByUser: current.likedBy.includes(user.id),
+  };
 }
 
 module.exports = {
   getInteractionMap,
-  addLike,
+  toggleLike,
   addComment,
 };

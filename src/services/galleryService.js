@@ -15,7 +15,7 @@ function sanitizeFileName(fileName) {
     .replace(/[^a-z0-9._-]/g, '');
 }
 
-async function listGalleryImages() {
+async function listGalleryImages(userId) {
   const [files] = await storage.bucket(bucketName).getFiles({ prefix });
   const interactionMap = await getInteractionMap();
 
@@ -41,6 +41,9 @@ async function listGalleryImages() {
         url,
         likes: interactionMap[file.name]?.likes || 0,
         comments: interactionMap[file.name]?.comments || [],
+        likedByUser: Boolean(
+          userId && interactionMap[file.name]?.likedBy?.includes(String(userId)),
+        ),
       };
     }),
   );

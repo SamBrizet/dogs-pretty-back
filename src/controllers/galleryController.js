@@ -3,7 +3,7 @@ const {
   listGalleryImages,
   uploadGalleryImage,
 } = require('../services/galleryService');
-const { addLike, addComment } = require('../services/interactionService');
+const { toggleLike, addComment } = require('../services/interactionService');
 
 function health(_req, res) {
   res.json({ ok: true, bucket: bucketName, prefix });
@@ -11,7 +11,7 @@ function health(_req, res) {
 
 async function getImages(_req, res) {
   try {
-    const response = await listGalleryImages();
+    const response = await listGalleryImages(_req.user?.id);
     res.json(response);
   } catch (error) {
     console.error('Error al listar imagenes de GCS:', error);
@@ -47,7 +47,7 @@ async function likeImage(req, res) {
       return;
     }
 
-    const interaction = await addLike(imagePath);
+    const interaction = await toggleLike(imagePath, req.user.id);
     res.json({ imagePath, interaction });
   } catch (error) {
     console.error('Error al dar like:', error);
@@ -58,7 +58,6 @@ async function likeImage(req, res) {
 async function commentImage(req, res) {
   try {
     const imagePath = req.body?.imagePath;
-    const author = (req.body?.author || '').trim();
     const text = (req.body?.text || '').trim();
 
     if (!imagePath) {
@@ -78,7 +77,7 @@ async function commentImage(req, res) {
       return;
     }
 
-    const interaction = await addComment(imagePath, author, text);
+    const interaction = await addComment(imagePath, req.user, text);
     res.status(201).json({ imagePath, interaction });
   } catch (error) {
     console.error('Error al comentar imagen:', error);

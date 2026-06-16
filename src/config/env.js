@@ -9,6 +9,8 @@ const env = {
   gcsBucket: process.env.GCS_BUCKET,
   gcsPrefix: process.env.GCS_PREFIX,
   googleApplicationCredentials: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  authSecret: process.env.AUTH_SECRET || 'dogs-pretty-secret-dev',
+  authUsers: process.env.AUTH_USERS,
 };
 
 module.exports = { env };
