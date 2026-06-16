@@ -1,9 +1,11 @@
 const express = require('express');
-const { health, getImages } = require('../controllers/galleryController');
+const { health, getImages, uploadImage } = require('../controllers/galleryController');
+const { upload } = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
 router.get('/health', health);
 router.get('/api/images', getImages);
+router.post('/api/images/upload', upload.single('image'), uploadImage);
 
 module.exports = router;

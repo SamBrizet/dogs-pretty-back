@@ -1,5 +1,8 @@
 const { bucketName, prefix } = require('../config/gcp');
-const { listGalleryImages } = require('../services/galleryService');
+const {
+  listGalleryImages,
+  uploadGalleryImage,
+} = require('../services/galleryService');
 
 function health(_req, res) {
   res.json({ ok: true, bucket: bucketName, prefix });
@@ -18,7 +21,24 @@ async function getImages(_req, res) {
   }
 }
 
+async function uploadImage(req, res) {
+  try {
+    const response = await uploadGalleryImage(req.file);
+    res.status(201).json(response);
+  } catch (error) {
+    console.error('Error al subir imagen a GCS:', error);
+    res.status(error.status || 500).json({
+      message:
+        error.status === 400
+          ? error.message
+          : 'No se pudo subir la imagen a Google Cloud Storage.',
+      details: error.status === 400 ? undefined : error.message,
+    });
+  }
+}
+
 module.exports = {
   health,
   getImages,
+  uploadImage,
 };
