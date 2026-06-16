@@ -1,5 +1,6 @@
 const path = require('node:path');
 const { storage, bucketName, prefix } = require('../config/gcp');
+const { getInteractionMap } = require('./interactionService');
 
 function createHttpError(status, message) {
   const error = new Error(message);
@@ -16,6 +17,7 @@ function sanitizeFileName(fileName) {
 
 async function listGalleryImages() {
   const [files] = await storage.bucket(bucketName).getFiles({ prefix });
+  const interactionMap = await getInteractionMap();
 
   const imageFiles = files.filter((file) => {
     const isFolder = file.name.endsWith('/');
@@ -37,6 +39,8 @@ async function listGalleryImages() {
         updated: file.metadata.updated,
         size: Number(file.metadata.size || 0),
         url,
+        likes: interactionMap[file.name]?.likes || 0,
+        comments: interactionMap[file.name]?.comments || [],
       };
     }),
   );
