@@ -1,0 +1,32 @@
+[
+  {
+    "id": "demo-user",
+    "username": "demo",
+    "password": "demo123",
+    "displayName": "Demo User"
+  },
+  {
+    "id": "user-02",
+    "username": "luna",
+    "password": "luna123",
+    "displayName": "Luna Garcia"
+  },
+  {
+    "id": "user-03",
+    "username": "max",
+    "password": "max12345",
+    "displayName": "Max Torres"
+  },
+  {
+    "id": "user-04",
+    "username": "nala",
+    "password": "nala123",
+    "displayName": "Nala Perez"
+  },
+  {
+    "id": "user-05",
+    "username": "rocky",
+    "password": "rocky123",
+    "displayName": "Rocky Diaz"
+  }
+]

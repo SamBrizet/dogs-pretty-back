@@ -44,8 +44,34 @@ function normalizeInteraction(interaction) {
   };
 }
 
+function resetLegacyLikes(store) {
+  return Object.fromEntries(
+    Object.entries(store || {}).map(([imagePath, interaction]) => {
+      const normalized = normalizeInteraction(interaction);
+
+      return [
+        imagePath,
+        {
+          ...normalized,
+          likes: 0,
+          likedBy: [],
+        },
+      ];
+    }),
+  );
+}
+
+let storeResetDone = false;
+
 async function getInteractionMap() {
   const store = await readStore();
+
+  if (!storeResetDone) {
+    const resetStore = resetLegacyLikes(store);
+    await writeStore(resetStore);
+    storeResetDone = true;
+    return resetStore;
+  }
 
   return Object.fromEntries(
     Object.entries(store).map(([imagePath, interaction]) => [
